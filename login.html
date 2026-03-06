@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f6fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>Login</h2>
+
+        <label>School</label>
+        <select id="school">
+            <option value="">-- Kies school --</option>
+            <option value="gbsDeStart">Gbs De Start (Berchem)</option>
+            <option value="gbsDeStart">Gbs De Start (Ruien)</option>
+            <option value="gbsDeWeideWereld">Gbs De Weide Wereld (Kruishoutem)</option>
+            <option value="gbzDeBosrank">Gbz De Bosrank (Zingem)</option>
+            <option value="gbsDeKleineReus">Gbs De Kleine Reus</option>
+            <option value="gbsDeToerertrein">Gbs De Toetertrein (Nazareth)</option>
+            <option value="gbsDeVlinderboom">Gbs De Vlinderboom (Eke)</option>
+            <option value="gbsDeBlijeSchool">Gbs De Blije School (De Pinte)</option>
+            <option value="gbsDeKouter">Gbs De Kouter</option>
+            <option value="gbsDeVijfWegen">Gbs De Vijf Wegen</option>
+        </select>
+
+        <label>Gebruikersnaam</label>
+        <input type="text" id="username" placeholder="Bijv. admin">
+
+        <label>Wachtwoord</label>
+        <input type="password" id="password" placeholder="Wachtwoord">
+
+        <button onclick="login()">Inloggen</button>
+
+        <div id="melding" style="color:red; text-align:center;"></div>
+    </div>
+
+    <script>
+        // Hardcoded gebruikers (per school)
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+        if (users.length === 0) {
+            users = [
+                { username: "admin", password: "admin123", role: "admin" }
+            ];
+            localStorage.setItem("users", JSON.stringify(users));
+        }
+
+        function login() {
+            const school = document.getElementById("school").value;
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const melding = document.getElementById("melding");
+
+            if (!school || !username || !password) {
+                melding.textContent = "Vul alle velden in!";
+                return;
+            }
+
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (!user) {
+                melding.textContent = "Onjuiste login!";
+                return;
+            }
+
+            // Opslaan in localStorage
+            localStorage.setItem("school", school);
+            localStorage.setItem("role", user.role);
+            localStorage.setItem("username", username);
+
+            // Doorsturen naar index
+            window.location = "index.html";
+        }
+    </script>
+
+</body>
+
+</html>

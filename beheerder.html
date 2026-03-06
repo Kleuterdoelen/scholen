@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beheer Gebruikers</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f4f6f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        input,
+        select,
+        button {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            color: white;
+            border: none;
+        }
+
+        .addBtn {
+            background: #27ae60;
+        }
+
+        .delBtn {
+            background: #e74c3c;
+        }
+
+        .editBtn {
+            background: #f39c12;
+        }
+
+        .eyeBtn {
+            background: #3498db;
+        }
+
+        #usersTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #usersTable th,
+        #usersTable td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Beheer Gebruikers</h2>
+        <div style="margin-bottom:15px;">
+            <a href="index.html"><button style="background:#3498db;">Terug naar registratie</button></a>
+            <button style="background:#e74c3c;" onclick="logout()">Uitloggen</button>
+        </div>
+
+        <h3>Nieuwe gebruiker toevoegen</h3>
+        <input id="newUsername" placeholder="Gebruikersnaam">
+        <input id="newPassword" type="password" placeholder="Wachtwoord">
+        <select id="newRole">
+            <option value="">-- Kies rol --</option>
+            <option value="admin">Admin</option>
+            <option value="leerkracht">Leerkracht</option>
+        </select>
+        <button class="addBtn" onclick="addUser()">Toevoegen</button>
+
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>Gebruiker</th>
+                    <th>Rol</th>
+                    <th>School</th>
+                    <th>Acties</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const role = localStorage.getItem("role");
+        const loggedInSchool = localStorage.getItem("school");
+
+        // Alleen admins mogen hier in
+        if (!role || role !== "admin") {
+            alert("Geen toegang");
+            window.location = "index.html";
+        }
+
+        // Zorg dat er standaard users zijn
+        if (!localStorage.getItem("users")) {
+            localStorage.setItem("users", JSON.stringify([{ username: "admin", password: "admin123", role: "admin", school: "GBZ De Bosrank" }]));
+        }
+
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+        // Functie om gebruikers te tonen, gefilterd op ingelogde school
+        function renderUsers() {
+            users = JSON.parse(localStorage.getItem("users")) || [];
+            const tbody = document.querySelector("#usersTable tbody");
+            tbody.innerHTML = "";
+
+            // Filter op school en bewaar originele index
+            const schoolUsers = users
+                .map((u, idx) => ({ ...u, originalIndex: idx }))
+                .filter(u => u.school === loggedInSchool);
+
+            schoolUsers.forEach(u => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+        <td>${u.username}</td>
+        <td>${u.role}</td>
+        <td>${u.school}</td>
+        <td>
+            <button class="editBtn" onclick="editUser(${u.originalIndex})">Aanpassen</button>
+            <button class="delBtn" onclick="deleteUser(${u.originalIndex})">Verwijderen</button>
+            <button class="eyeBtn" onclick="showPassword(${u.originalIndex})">👁️</button>
+        </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Nieuwe gebruiker toevoegen (automatisch dezelfde school als ingelogde gebruiker)
+        function addUser() {
+            const username = document.getElementById("newUsername").value.trim();
+            const password = document.getElementById("newPassword").value.trim();
+            const role = document.getElementById("newRole").value;
+            const school = loggedInSchool; // altijd de school van ingelogde gebruiker
+
+            if (!username || !password || !role) {
+                alert("Vul alle velden in!");
+                return;
+            }
+
+            users = JSON.parse(localStorage.getItem("users")) || [];
+            if (users.some(u => u.username === username && u.school === school)) {
+                alert("Deze gebruiker bestaat al voor deze school!");
+                return;
+            }
+
+            users.push({ username, password, role, school });
+            localStorage.setItem("users", JSON.stringify(users));
+            document.getElementById("newUsername").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("newRole").value = "";
+            renderUsers();
+        }
+
+        // Gebruiker verwijderen
+        function deleteUser(index) {
+            if (confirm(`Weet je zeker dat je ${users[index].username} wilt verwijderen?`)) {
+                users.splice(index, 1);
+                localStorage.setItem("users", JSON.stringify(users));
+                renderUsers();
+            }
+        }
+
+        // Gebruiker bewerken
+        function editUser(index) {
+            const newUsername = prompt("Nieuwe gebruikersnaam:", users[index].username);
+            if (!newUsername) return;
+            const newPassword = prompt("Nieuw wachtwoord:", users[index].password);
+            if (!newPassword) return;
+            const newRole = prompt("Nieuwe rol (admin/leerkracht):", users[index].role);
+            if (!newRole || (newRole !== "admin" && newRole !== "leerkracht")) { alert("Rol ongeldig!"); return; }
+
+            users[index] = { username: newUsername, password: newPassword, role: newRole, school: loggedInSchool };
+            localStorage.setItem("users", JSON.stringify(users));
+            renderUsers();
+        }
+
+        // Wachtwoord tonen
+        function showPassword(index) {
+            alert(`Wachtwoord van ${users[index].username}: ${users[index].password}`);
+        }
+
+        // Uitloggen
+        function logout() {
+            localStorage.removeItem("role");
+            localStorage.removeItem("school");
+            localStorage.removeItem("username");
+            window.location = "login.html";
+        }
+
+        renderUsers();
+    </script>
+</body>
+
+</html>

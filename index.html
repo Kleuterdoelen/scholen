@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doelenregistratie</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f6fb;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav-buttons button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .nav-primary {
+      background: #3498db;
+    }
+
+    .nav-settings {
+      background: #f39c12;
+    }
+
+    .nav-save {
+      background: #27ae60;
+      color: white;
+      border-radius: 6px;
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+      display: block;
+      font-weight: bold;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      flex: 1 1 180px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    input,
+    select {
+      padding: 5px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 5px;
+      text-align: center;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      text-align: left;
+      padding-left: 10px;
+      width: 25%;
+    }
+
+    td:nth-child(n+2),
+    th:nth-child(n+2) {
+      width: 15%;
+    }
+
+    .circle {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      border: none;
+      opacity: 0.4;
+      cursor: pointer;
+      margin: auto;
+      display: block;
+    }
+
+    .active {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .red {
+      background: #e74c3c;
+    }
+
+    .orange {
+      background: #f39c12;
+    }
+
+    .lightgreen {
+      background: #2ecc71;
+    }
+
+    .darkgreen {
+      background: blue;
+    }
+
+    .grey {
+      background: #95a5a6;
+    }
+
+    .explain-text {
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .success {
+      color: #27ae60;
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Doelenregistratie</h2>
+
+    <div class="nav-buttons">
+      <a href="overzicht.html"><button class="nav-primary">Overzicht leerling</button></a>
+      <a href="settings.html" id="settingsLink" style="display:none;"><button
+          class="nav-settings">Instellingen</button></a>
+      <a href="klas.html" id="klasLink" style="display:none;"><button class="nav-settings">Klassen wijzigen</button></a>
+      <a href="beheerder.html" id="beheerLink" style="display:none;"><button class="nav-settings">Beheer
+          leerkrachten</button></a>
+      <button style="background:#e74c3c;" onclick="logout()">Uitloggen</button>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Klas</label>
+        <input list="klassen" id="klas" placeholder="Selecteer een klas">
+        <datalist id="klassen"></datalist>
+      </div>
+      <div class="field">
+        <label>Domein</label>
+        <input list="domeinen" id="domein" placeholder="Selecteer een domein">
+        <datalist id="domeinen"></datalist>
+      </div>
+      <div class="field">
+        <label>Thema</label>
+        <input list="themas" id="thema" placeholder="Selecteer een thema">
+        <datalist id="themas"></datalist>
+      </div>
+      <div class="field">
+        <label>Doel</label>
+        <input list="doelen" id="doel" placeholder="Selecteer een doel">
+        <datalist id="doelen"></datalist>
+      </div>
+      <div class="field">
+        <label>Datum</label>
+        <input type="date" id="datum">
+      </div>
+    </div>
+
+    <table>
+      <tbody id="studentTable"></tbody>
+    </table>
+
+    <button class="nav-save" onclick="opslaan()">Opslaan</button>
+    <div id="melding" class="success"></div>
+  </div>
+
+  <script>
+    // ===== INIT =====
+    const school = localStorage.getItem("school");
+    const role = localStorage.getItem("role");
+
+    // Redirect alleen als school of role ontbreekt
+    if (!school || !role) { window.location = "login.html"; }
+
+    // Knoppen zichtbaar maken
+    if (role === "admin") {
+      document.getElementById("beheerLink").style.display = "inline-block";
+      document.getElementById("klasLink").style.display = "inline-block";
+      document.getElementById("settingsLink").style.display = "inline-block";
+    }
+    if (role === "leerkracht") {
+      document.getElementById("settingsLink").style.display = "none";
+      document.getElementById("klasLink").style.display = "none";
+      document.getElementById("beheerLink").style.display = "none";
+    }
+
+    // ===== DATA =====
+    function getStoredStudents() { return JSON.parse(localStorage.getItem("students")) || []; }
+    let domeinen = JSON.parse(localStorage.getItem("domeinen")) || [];
+    let themasPerDomein = JSON.parse(localStorage.getItem("themasPerDomein")) || {};
+    let doelUitlegPerThema = JSON.parse(localStorage.getItem("doelUitlegPerThema")) || {};
+    let registraties = JSON.parse(localStorage.getItem("registraties")) || [];
+
+    document.getElementById("datum").valueAsDate = new Date();
+
+    // ===== SORTERING =====
+    function sorteerOpAchternaam(lijst) {
+      return lijst.sort((a, b) => {
+        const partsA = a.name.trim().split(" ");
+        const partsB = b.name.trim().split(" ");
+        const achternaamA = partsA.slice(1).join(" ").toLowerCase();
+        const achternaamB = partsB.slice(1).join(" ").toLowerCase();
+        if (achternaamA === achternaamB) return partsA[0].toLowerCase().localeCompare(partsB[0].toLowerCase());
+        return achternaamA.localeCompare(achternaamB);
+      });
+    }
+    function uniqueArray(arr) { return [...new Set(arr)]; }
+
+    // ===== DATALISTS UPDATEN =====
+    function updateDatalists() {
+      const dataklassen = document.getElementById("klassen");
+      dataklassen.innerHTML = "";
+      uniqueArray(getStoredStudents()
+        .filter(s => s.school === school) // <=== Alleen klassen van ingelogde school
+        .map(s => s.klas))
+        .sort()
+        .forEach(k => {
+          if (k) { const opt = document.createElement("option"); opt.value = k; dataklassen.appendChild(opt); }
+        });
+
+      const datadomeinen = document.getElementById("domeinen");
+      datadomeinen.innerHTML = "";
+      domeinen.forEach(d => { const opt = document.createElement("option"); opt.value = d; datadomeinen.appendChild(opt); });
+
+      const domein = document.getElementById("domein").value;
+      const datathemas = document.getElementById("themas");
+      datathemas.innerHTML = "";
+      if (domein && themasPerDomein[domein]) themasPerDomein[domein].forEach(t => {
+        const opt = document.createElement("option"); opt.value = t; datathemas.appendChild(opt);
+      });
+
+      const thema = document.getElementById("thema").value;
+      const datadoelen = document.getElementById("doelen");
+      datadoelen.innerHTML = "";
+      if (thema && doelUitlegPerThema[thema]) Object.keys(doelUitlegPerThema[thema]).forEach(d => {
+        const opt = document.createElement("option"); opt.value = d; datadoelen.appendChild(opt);
+      });
+    }
+
+    // ===== STUDENT TABLE UPDATEN =====
+    function updateStudentTable() {
+      const table = document.getElementById("studentTable");
+      table.innerHTML = "";
+      const klas = document.getElementById("klas").value;
+      const domein = document.getElementById("domein").value;
+      const thema = document.getElementById("thema").value;
+      const doel = document.getElementById("doel").value;
+
+      if (!klas) return;
+
+      let leerlingen = getStoredStudents().filter(s => s.klas === klas && s.school === school); // <=== Alleen leerlingen van ingelogde school
+      leerlingen = sorteerOpAchternaam(leerlingen);
+
+      if (leerlingen.length === 0) { table.innerHTML = `<tr><td colspan="6">Geen leerlingen in deze klas</td></tr>`; return; }
+
+      const headerRow = document.createElement("tr");
+      if (doel && doelUitlegPerThema[thema] && doelUitlegPerThema[thema][doel]) {
+        const uitleg = doelUitlegPerThema[thema][doel];
+        headerRow.innerHTML = `<th>Leerling</th>
+      <th>🔴 ${uitleg.Starter || ""}</th>
+      <th>🟠 ${uitleg.Lerende || ""}</th>
+      <th>🟢 ${uitleg.Gevorderd || ""}</th>
+      <th>🔵 ${uitleg.Expert || ""}</th>
+      <th>⚪ ${uitleg.Afwezig || ""}</th>`;
+      } else {
+        headerRow.innerHTML = `<th>Leerling</th>
+      <th>🔴</th>
+      <th>🟠</th>
+      <th>🟢</th>
+      <th>🔵</th>
+      <th>⚪</th>`;
+      }
+      table.appendChild(headerRow);
+
+      leerlingen.forEach(student => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${student.name}</td>
+      <td><button class="circle red"></button></td>
+      <td><button class="circle orange"></button></td>
+      <td><button class="circle lightgreen"></button></td>
+      <td><button class="circle darkgreen"></button></td>
+      <td><button class="circle grey"></button></td>`;
+        table.appendChild(row);
+      });
+    }
+
+    // ===== BOLLETJES CLICK =====
+    document.addEventListener("click", function (e) {
+      if (e.target.classList.contains("circle")) {
+        const btn = e.target;
+        const row = btn.closest("tr");
+        // Check: als deze bol al actief is, haal active weg
+        if (btn.classList.contains("active")) {
+          btn.classList.remove("active");
+        } else {
+          // anders: deselecteer andere bolletjes in dezelfde rij en active deze
+          row.querySelectorAll(".circle").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        }
+      }
+    });
+
+    // ===== OPSLAAN =====
+    function opslaan() {
+      const klas = document.getElementById("klas").value;
+      const domein = document.getElementById("domein").value;
+      const thema = document.getElementById("thema").value;
+      const doel = document.getElementById("doel").value;
+      const datum = document.getElementById("datum").value;
+      if (!klas || !domein || !thema || !doel || !datum) { alert("Vul alle velden in!"); return; }
+      const leerlingen = getStoredStudents().filter(s => s.klas === klas && s.school === school);
+      if (leerlingen.length === 0) { alert("Er zijn geen leerlingen in deze klas!"); return; }
+
+      let nieuweRegistratie = { klas, domein, thema, doel, datum, school, resultaten: [] };
+      leerlingen.forEach(student => {
+        let tr = Array.from(document.getElementById("studentTable").rows).find(r => r.cells[0].textContent === student.name);
+        let niveau = "-";
+        if (tr) {
+          if (tr.cells[1].querySelector("button").classList.contains("active")) niveau = "Starter";
+          if (tr.cells[2].querySelector("button").classList.contains("active")) niveau = "Lerende";
+          if (tr.cells[3].querySelector("button").classList.contains("active")) niveau = "Gevorderd";
+          if (tr.cells[4].querySelector("button").classList.contains("active")) niveau = "Expert";
+          if (tr.cells[5].querySelector("button").classList.contains("active")) niveau = "Afwezig";
+        }
+        if (niveau !== "-") nieuweRegistratie.resultaten.push({ naam: student.name, niveau });
+      });
+
+      if (nieuweRegistratie.resultaten.length > 0) {
+        registraties.push(nieuweRegistratie);
+        localStorage.setItem("registraties", JSON.stringify(registraties));
+        document.getElementById("melding").innerText = "✔ Registratie opgeslagen!";
+        setTimeout(() => { document.getElementById("melding").innerText = ""; }, 2000);
+      } else {
+        alert("Geen resultaten geselecteerd!");
+      }
+    }
+
+    // ===== EVENT LISTENERS =====
+    document.getElementById("klas").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
+    document.getElementById("domein").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
+    document.getElementById("thema").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
+    document.getElementById("doel").addEventListener("input", () => { updateStudentTable(); });
+
+    // ===== LOGOUT =====
+    function logout() { window.location = "login.html"; }
+
+    // ===== INIT =====
+    updateDatalists();
+    updateStudentTable();
+  </script>
+
+</body>
+
+</html>
