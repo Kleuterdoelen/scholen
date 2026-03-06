@@ -1,122 +1,144 @@
 <!DOCTYPE html>
 <html lang="nl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f2f6fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
 
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
+<style>
 
-        input,
-        select,
-        button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
+body{
+font-family:Arial;
+background:#f2f6fb;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
 
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+.card{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.1);
+width:300px;
+}
 
-        button:hover {
-            background: #2980b9;
-        }
-    </style>
+input,select,button{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+background:#3498db;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#2980b9;
+}
+
+#melding{
+color:red;
+text-align:center;
+}
+
+</style>
 </head>
 
 <body>
 
-    <div class="card">
-        <h2>Login</h2>
+<div class="card">
 
-        <label>School</label>
-        <select id="school">
-            <option value="">-- Kies school --</option>
-            <option value="gbsDeStart">Gbs De Start (Berchem)</option>
-            <option value="gbsDeStart">Gbs De Start (Ruien)</option>
-            <option value="gbsDeWeideWereld">Gbs De Weide Wereld (Kruishoutem)</option>
-            <option value="gbzDeBosrank">Gbz De Bosrank (Zingem)</option>
-            <option value="gbsDeKleineReus">Gbs De Kleine Reus</option>
-            <option value="gbsDeToerertrein">Gbs De Toetertrein (Nazareth)</option>
-            <option value="gbsDeVlinderboom">Gbs De Vlinderboom (Eke)</option>
-            <option value="gbsDeBlijeSchool">Gbs De Blije School (De Pinte)</option>
-            <option value="gbsDeKouter">Gbs De Kouter</option>
-            <option value="gbsDeVijfWegen">Gbs De Vijf Wegen</option>
-        </select>
+<h2>Login</h2>
 
-        <label>Gebruikersnaam</label>
-        <input type="text" id="username" placeholder="Bijv. admin">
+<label>School</label>
 
-        <label>Wachtwoord</label>
-        <input type="password" id="password" placeholder="Wachtwoord">
+<select id="school">
+<option value="">-- Kies school --</option>
+<option value="gbzDeBosrank">Gbz De Bosrank</option>
+<option value="kouter">Gbs De Kouter</option>
+</select>
 
-        <button onclick="login()">Inloggen</button>
+<label>Gebruikersnaam</label>
+<input type="text" id="username" placeholder="Bijv. admin">
 
-        <div id="melding" style="color:red; text-align:center;"></div>
-    </div>
+<label>Wachtwoord</label>
+<input type="password" id="password" placeholder="Wachtwoord">
 
-    <script>
-        // Hardcoded gebruikers (per school)
-        let users = JSON.parse(localStorage.getItem("users")) || [];
+<button onclick="login()">Inloggen</button>
 
-        if (users.length === 0) {
-            users = [
-                { username: "admin", password: "admin123", role: "admin" }
-            ];
-            localStorage.setItem("users", JSON.stringify(users));
-        }
+<div id="melding"></div>
 
-        function login() {
-            const school = document.getElementById("school").value;
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const melding = document.getElementById("melding");
+</div>
 
-            if (!school || !username || !password) {
-                melding.textContent = "Vul alle velden in!";
-                return;
-            }
+<script>
 
-            const user = users.find(u => u.username === username && u.password === password);
+// USERS LADEN
+let users = JSON.parse(localStorage.getItem("users")) || [];
 
-            if (!user) {
-                melding.textContent = "Onjuiste login!";
-                return;
-            }
+// ALS GEEN USERS BESTAAN -> VOORBEELD USERS MAKEN
+if(users.length === 0){
 
-            // Opslaan in localStorage
-            localStorage.setItem("school", school);
-            localStorage.setItem("role", user.role);
-            localStorage.setItem("username", username);
+users = [
 
-            // Doorsturen naar index
-            window.location = "index.html";
-        }
-    </script>
+{username:"admin",password:"admin123",role:"admin",school:"gbzDeBosrank"},
+{username:"leerkracht1",password:"les123",role:"leerkracht",school:"bosrank"},
+{username:"admin2",password:"admin123",role:"admin",school:"kouter"},
+{username:"leerkracht2",password:"les456",role:"leerkracht",school:"kouter"}
+
+];
+
+localStorage.setItem("users",JSON.stringify(users));
+
+}
+
+// LOGIN FUNCTIE
+function login(){
+
+const school=document.getElementById("school").value;
+const username=document.getElementById("username").value.trim();
+const password=document.getElementById("password").value.trim();
+const melding=document.getElementById("melding");
+
+if(!school || !username || !password){
+
+melding.textContent="Vul alle velden in!";
+return;
+
+}
+
+// GEBRUIKER ZOEKEN
+const user=users.find(u =>
+u.username===username &&
+u.password===password &&
+u.school===school
+);
+
+if(!user){
+
+melding.textContent="Onjuiste login of verkeerde school!";
+return;
+
+}
+
+// LOGIN OPSLAAN
+localStorage.setItem("school",school);
+localStorage.setItem("role",user.role);
+localStorage.setItem("username",username);
+
+// DOORSTUREN
+window.location="index.html";
+
+}
+
+</script>
 
 </body>
-
 </html>

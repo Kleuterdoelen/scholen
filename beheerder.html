@@ -112,7 +112,7 @@
 
         // Zorg dat er standaard users zijn
         if (!localStorage.getItem("users")) {
-            localStorage.setItem("users", JSON.stringify([{ username: "admin", password: "admin123", role: "admin", school: "GBZ De Bosrank" }]));
+            localStorage.setItem("users", JSON.stringify([{ username: "admin", password: "admin123", role: "admin", school: "gbzDeBosrank" }]));
         }
 
         let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -171,7 +171,8 @@
 
         // Gebruiker verwijderen
         function deleteUser(index) {
-            if (confirm(`Weet je zeker dat je ${users[index].username} wilt verwijderen?`)) {
+            const user = users[index];
+            if (confirm(`Weet je zeker dat je ${user.username} wilt verwijderen?`)) {
                 users.splice(index, 1);
                 localStorage.setItem("users", JSON.stringify(users));
                 renderUsers();

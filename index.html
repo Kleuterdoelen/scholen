@@ -164,11 +164,9 @@
 
     <div class="nav-buttons">
       <a href="overzicht.html"><button class="nav-primary">Overzicht leerling</button></a>
-      <a href="settings.html" id="settingsLink" style="display:none;"><button
-          class="nav-settings">Instellingen</button></a>
+      <a href="settings.html" id="settingsLink" style="display:none;"><button class="nav-settings">Instellingen</button></a>
       <a href="klas.html" id="klasLink" style="display:none;"><button class="nav-settings">Klassen wijzigen</button></a>
-      <a href="beheerder.html" id="beheerLink" style="display:none;"><button class="nav-settings">Beheer
-          leerkrachten</button></a>
+      <a href="beheerder.html" id="beheerLink" style="display:none;"><button class="nav-settings">Beheer leerkrachten</button></a>
       <button style="background:#e74c3c;" onclick="logout()">Uitloggen</button>
     </div>
 
@@ -208,27 +206,18 @@
   </div>
 
   <script>
-    // ===== INIT =====
     const school = localStorage.getItem("school");
     const role = localStorage.getItem("role");
+    if (!school || !role) window.location = "login.html";
 
-    // Redirect alleen als school of role ontbreekt
-    if (!school || !role) { window.location = "login.html"; }
-
-    // Knoppen zichtbaar maken
     if (role === "admin") {
       document.getElementById("beheerLink").style.display = "inline-block";
       document.getElementById("klasLink").style.display = "inline-block";
       document.getElementById("settingsLink").style.display = "inline-block";
     }
-    if (role === "leerkracht") {
-      document.getElementById("settingsLink").style.display = "none";
-      document.getElementById("klasLink").style.display = "none";
-      document.getElementById("beheerLink").style.display = "none";
-    }
 
-    // ===== DATA =====
     function getStoredStudents() { return JSON.parse(localStorage.getItem("students")) || []; }
+
     let domeinen = JSON.parse(localStorage.getItem("domeinen")) || [];
     let themasPerDomein = JSON.parse(localStorage.getItem("themasPerDomein")) || {};
     let doelUitlegPerThema = JSON.parse(localStorage.getItem("doelUitlegPerThema")) || {};
@@ -236,7 +225,6 @@
 
     document.getElementById("datum").valueAsDate = new Date();
 
-    // ===== SORTERING =====
     function sorteerOpAchternaam(lijst) {
       return lijst.sort((a, b) => {
         const partsA = a.name.trim().split(" ");
@@ -249,17 +237,11 @@
     }
     function uniqueArray(arr) { return [...new Set(arr)]; }
 
-    // ===== DATALISTS UPDATEN =====
     function updateDatalists() {
       const dataklassen = document.getElementById("klassen");
       dataklassen.innerHTML = "";
-      uniqueArray(getStoredStudents()
-        .filter(s => s.school === school) // <=== Alleen klassen van ingelogde school
-        .map(s => s.klas))
-        .sort()
-        .forEach(k => {
-          if (k) { const opt = document.createElement("option"); opt.value = k; dataklassen.appendChild(opt); }
-        });
+      uniqueArray(getStoredStudents().filter(s => s.school === school).map(s => s.klas))
+        .sort().forEach(k => { if (k) { const opt = document.createElement("option"); opt.value = k; dataklassen.appendChild(opt); } });
 
       const datadomeinen = document.getElementById("domeinen");
       datadomeinen.innerHTML = "";
@@ -280,7 +262,6 @@
       });
     }
 
-    // ===== STUDENT TABLE UPDATEN =====
     function updateStudentTable() {
       const table = document.getElementById("studentTable");
       table.innerHTML = "";
@@ -291,7 +272,7 @@
 
       if (!klas) return;
 
-      let leerlingen = getStoredStudents().filter(s => s.klas === klas && s.school === school); // <=== Alleen leerlingen van ingelogde school
+      let leerlingen = getStoredStudents().filter(s => s.klas === klas && s.school === school);
       leerlingen = sorteerOpAchternaam(leerlingen);
 
       if (leerlingen.length === 0) { table.innerHTML = `<tr><td colspan="6">Geen leerlingen in deze klas</td></tr>`; return; }
@@ -300,98 +281,87 @@
       if (doel && doelUitlegPerThema[thema] && doelUitlegPerThema[thema][doel]) {
         const uitleg = doelUitlegPerThema[thema][doel];
         headerRow.innerHTML = `<th>Leerling</th>
-      <th>🔴 ${uitleg.Starter || ""}</th>
-      <th>🟠 ${uitleg.Lerende || ""}</th>
-      <th>🟢 ${uitleg.Gevorderd || ""}</th>
-      <th>🔵 ${uitleg.Expert || ""}</th>
-      <th>⚪ ${uitleg.Afwezig || ""}</th>`;
+        <th>🔴 ${uitleg.Starter||""}</th>
+        <th>🟠 ${uitleg.Lerende||""}</th>
+        <th>🟢 ${uitleg.Gevorderd||""}</th>
+        <th>🔵 ${uitleg.Expert||""}</th>
+        <th>⚪ ${uitleg.Afwezig||""}</th>`;
       } else {
-        headerRow.innerHTML = `<th>Leerling</th>
-      <th>🔴</th>
-      <th>🟠</th>
-      <th>🟢</th>
-      <th>🔵</th>
-      <th>⚪</th>`;
+        headerRow.innerHTML = `<th>Leerling</th><th>🔴</th><th>🟠</th><th>🟢</th><th>🔵</th><th>⚪</th>`;
       }
       table.appendChild(headerRow);
 
       leerlingen.forEach(student => {
         const row = document.createElement("tr");
         row.innerHTML = `<td>${student.name}</td>
-      <td><button class="circle red"></button></td>
-      <td><button class="circle orange"></button></td>
-      <td><button class="circle lightgreen"></button></td>
-      <td><button class="circle darkgreen"></button></td>
-      <td><button class="circle grey"></button></td>`;
+          <td><button class="circle red"></button></td>
+          <td><button class="circle orange"></button></td>
+          <td><button class="circle lightgreen"></button></td>
+          <td><button class="circle darkgreen"></button></td>
+          <td><button class="circle grey"></button></td>`;
         table.appendChild(row);
+
+        // Extra uitleg rij
+        if (doel && doelUitlegPerThema[thema] && doelUitlegPerThema[thema][doel]?.Meer) {
+          const uitlegRow = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 6;
+          td.classList.add("explain-text");
+          td.innerText = `💡 Meer uitleg: ${doelUitlegPerThema[thema][doel].Meer}`;
+          uitlegRow.appendChild(td);
+          table.appendChild(uitlegRow);
+        }
       });
     }
 
-    // ===== BOLLETJES CLICK =====
     document.addEventListener("click", function (e) {
       if (e.target.classList.contains("circle")) {
         const btn = e.target;
         const row = btn.closest("tr");
-        // Check: als deze bol al actief is, haal active weg
-        if (btn.classList.contains("active")) {
-          btn.classList.remove("active");
-        } else {
-          // anders: deselecteer andere bolletjes in dezelfde rij en active deze
-          row.querySelectorAll(".circle").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-        }
+        if (btn.classList.contains("active")) btn.classList.remove("active");
+        else { row.querySelectorAll(".circle").forEach(b => b.classList.remove("active")); btn.classList.add("active"); }
       }
     });
 
-    // ===== OPSLAAN =====
     function opslaan() {
       const klas = document.getElementById("klas").value;
       const domein = document.getElementById("domein").value;
       const thema = document.getElementById("thema").value;
       const doel = document.getElementById("doel").value;
       const datum = document.getElementById("datum").value;
-      if (!klas || !domein || !thema || !doel || !datum) { alert("Vul alle velden in!"); return; }
-      const leerlingen = getStoredStudents().filter(s => s.klas === klas && s.school === school);
-      if (leerlingen.length === 0) { alert("Er zijn geen leerlingen in deze klas!"); return; }
-
-      let nieuweRegistratie = { klas, domein, thema, doel, datum, school, resultaten: [] };
-      leerlingen.forEach(student => {
-        let tr = Array.from(document.getElementById("studentTable").rows).find(r => r.cells[0].textContent === student.name);
-        let niveau = "-";
-        if (tr) {
-          if (tr.cells[1].querySelector("button").classList.contains("active")) niveau = "Starter";
-          if (tr.cells[2].querySelector("button").classList.contains("active")) niveau = "Lerende";
-          if (tr.cells[3].querySelector("button").classList.contains("active")) niveau = "Gevorderd";
-          if (tr.cells[4].querySelector("button").classList.contains("active")) niveau = "Expert";
-          if (tr.cells[5].querySelector("button").classList.contains("active")) niveau = "Afwezig";
+      if (!klas||!domein||!thema||!doel||!datum) { alert("Vul alle velden in!"); return; }
+      const leerlingen = getStoredStudents().filter(s => s.klas===klas&&s.school===school);
+      if (leerlingen.length===0){ alert("Er zijn geen leerlingen in deze klas!"); return; }
+      let nieuweRegistratie={klas,domein,thema,doel,datum,school,resultaten:[]};
+      leerlingen.forEach(student=>{
+        let tr = Array.from(document.getElementById("studentTable").rows).find(r=>r.cells[0].textContent===student.name);
+        let niveau="-";
+        if(tr){
+          if(tr.cells[1].querySelector("button").classList.contains("active")) niveau="Starter";
+          if(tr.cells[2].querySelector("button").classList.contains("active")) niveau="Lerende";
+          if(tr.cells[3].querySelector("button").classList.contains("active")) niveau="Gevorderd";
+          if(tr.cells[4].querySelector("button").classList.contains("active")) niveau="Expert";
+          if(tr.cells[5].querySelector("button").classList.contains("active")) niveau="Afwezig";
         }
-        if (niveau !== "-") nieuweRegistratie.resultaten.push({ naam: student.name, niveau });
+        if(niveau!=="-") nieuweRegistratie.resultaten.push({naam:student.name,niveau});
       });
-
-      if (nieuweRegistratie.resultaten.length > 0) {
+      if(nieuweRegistratie.resultaten.length>0){
         registraties.push(nieuweRegistratie);
-        localStorage.setItem("registraties", JSON.stringify(registraties));
-        document.getElementById("melding").innerText = "✔ Registratie opgeslagen!";
-        setTimeout(() => { document.getElementById("melding").innerText = ""; }, 2000);
-      } else {
-        alert("Geen resultaten geselecteerd!");
-      }
+        localStorage.setItem("registraties",JSON.stringify(registraties));
+        document.getElementById("melding").innerText="✔ Registratie opgeslagen!";
+        setTimeout(()=>{document.getElementById("melding").innerText="";},2000);
+      } else alert("Geen resultaten geselecteerd!");
     }
 
-    // ===== EVENT LISTENERS =====
-    document.getElementById("klas").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
-    document.getElementById("domein").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
-    document.getElementById("thema").addEventListener("input", () => { updateDatalists(); updateStudentTable(); });
-    document.getElementById("doel").addEventListener("input", () => { updateStudentTable(); });
+    document.getElementById("klas").addEventListener("input",()=>{ updateDatalists(); updateStudentTable(); });
+    document.getElementById("domein").addEventListener("input",()=>{ updateDatalists(); updateStudentTable(); });
+    document.getElementById("thema").addEventListener("input",()=>{ updateDatalists(); updateStudentTable(); });
+    document.getElementById("doel").addEventListener("input",()=>{ updateStudentTable(); });
 
-    // ===== LOGOUT =====
-    function logout() { window.location = "login.html"; }
+    function logout(){ localStorage.removeItem("role"); localStorage.removeItem("school"); localStorage.removeItem("username"); window.location="login.html"; }
 
-    // ===== INIT =====
-    updateDatalists();
-    updateStudentTable();
+    updateDatalists(); updateStudentTable();
   </script>
-
 </body>
 
 </html>
