@@ -270,7 +270,12 @@
         }
 
         // Logout
-        function logout() { localStorage.clear(); window.location = "login.html"; }
+        function logout() {
+            localStorage.removeItem("role");
+            localStorage.removeItem("school");
+            localStorage.removeItem("username");
+            window.location = "login.html";
+        }
 
     </script>
 

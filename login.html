@@ -1,130 +1,131 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-<style>
-body{
-    font-family:Arial;
-    background:#f2f6fb;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
-}
-.card{
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.1);
-    width:320px;
-}
-input,select,button{
-    width:100%;
-    padding:10px;
-    margin:10px 0;
-    border-radius:6px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
-button{
-    background:#3498db;
-    color:white;
-    border:none;
-    cursor:pointer;
-}
-button:hover{
-    background:#2980b9;
-}
-#melding{
-    color:red;
-    text-align:center;
-    margin-top:10px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f6fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 80%;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        #melding {
+            color: red;
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
-<div class="card">
-<h2>Login</h2>
+    <div class="card">
+        <h2>Login</h2>
 
-<label>School</label>
-<select id="school">
-    <option value="">-- Kies school --</option>
-    <option value="gbsDeStartB">Gbs De Start (Berchem)</option>
-    <option value="gbsDeStartR">Gbs De Start (Ruien)</option>
-    <option value="gbsDeWeideWereld">Gbs De Weide Wereld (Kruishoutem)</option>
-    <option value="gbzDeBosrank">Gbz De Bosrank (Zingem)</option>
-    <option value="gbsDeKleineReus">Gbs De Kleine Reus</option>
-    <option value="gbsDeToetertrein">Gbs De Toetertrein (Nazareth)</option>
-    <option value="gbsDeVlinderboom">Gbs De Vlinderboom (Eke)</option>
-    <option value="gbsDeBlijeSchool">Gbs De Blije School (De Pinte)</option>
-    <option value="kouter">Gbs De Kouter</option>
-    <option value="gbsDeVijfWegen">Gbs De Vijf Wegen</option>
-</select>
+        <label>School</label><br>
+        <select id="school">
+            <option value="">-- Kies school --</option>
+            <option value="gbsDeStartB">Gbs De Start (Berchem)</option>
+            <option value="gbsDeStartR">Gbs De Start (Ruien)</option>
+            <option value="gbsDeWeideWereld">Gbs De Weide Wereld (Kruishoutem)</option>
+            <option value="gbzDeBosrank">Gbz De Bosrank (Zingem)</option>
+            <option value="gbsDeKleineReus">Gbs De Kleine Reus</option>
+            <option value="gbsDeToetertrein">Gbs De Toetertrein (Nazareth)</option>
+            <option value="gbsDeVlinderboom">Gbs De Vlinderboom (Eke)</option>
+            <option value="gbsDeBlijeSchool">Gbs De Blije School (De Pinte)</option>
+            <option value="gbsDeKouter">Gbs De Kouter</option>
+            <option value="gbsDeVijfWegen">Gbs De Vijf Wegen</option>
+        </select>
 
-<label>Gebruikersnaam</label>
-<input type="text" id="username" placeholder="Bijv. admin">
+        <label>Gebruikersnaam</label>
+        <input type="text" id="username" placeholder="Bijv. admin">
+        <label>Wachtwoord</label>
+        <input type="password" id="password" placeholder="Wachtwoord">
+        <button onclick="login()">Inloggen</button>
+        <div id="melding"></div>
+    </div>
 
-<label>Wachtwoord</label>
-<input type="password" id="password" placeholder="Wachtwoord">
+    <script>
+        // Maak voorbeeldusers alleen als users nog niet bestaan
+        if (!localStorage.getItem("users")) {
+            const voorbeeldUsers = [
+                { username: "admin", password: "adminDeStartB", role: "admin", school: "gbsDeStartB" },
+                { username: "admin", password: "adminDeStartR", role: "admin", school: "gbsDeStartR" },
+                { username: "admin", password: "adminDeWeideWereld", role: "admin", school: "gbsDeWeideWereld" },
+                { username: "admin", password: "adminDeBosrank", role: "admin", school: "gbzDeBosrank" },
+                { username: "admin", password: "adminDeKleineReus", role: "admin", school: "gbsDeKleineReus" },
+                { username: "admin", password: "adminDeToetertrein", role: "admin", school: "gbsDeToetertrein" },
+                { username: "admin", password: "adminDeVlinderboom", role: "admin", school: "gbsDeVlinderboom" },
+                { username: "admin", password: "adminDeBlijeSchool", role: "admin", school: "gbsDeBlijeSchool" },
+                { username: "admin", password: "adminDeKouter", role: "admin", school: "gbsDeKouter" },
+                { username: "admin", password: "adminDeVijfWegen", role: "admin", school: "gbsDeVijfWegen" }
+            ];
+            localStorage.setItem("users", JSON.stringify(voorbeeldUsers));
+        }
 
-<button onclick="login()">Inloggen</button>
-<div id="melding"></div>
-</div>
+        let users = JSON.parse(localStorage.getItem("users"));
 
-<script>
-// ⚡ Zorg dat oude users verwijderd worden
-localStorage.removeItem("users");
+        // Login functie
+        function login() {
+            const school = document.getElementById("school").value;
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const melding = document.getElementById("melding");
 
-// Init default users
-const users = [
-    {username:"admin",password:"adminDeStartB",role:"admin",school:"gbsDeStartB"},
-    {username:"admin",password:"adminDeStartR",role:"admin",school:"gbsDeStartR"},
-    {username:"admin",password:"adminDeWeideWereld",role:"admin",school:"gbsDeWeideWereld"},
-    {username:"admin",password:"adminDeBosrank",role:"admin",school:"gbzDeBosrank"},
-    {username:"admin",password:"adminDeKleineReus",role:"admin",school:"gbsDeKleineReus"},
-    {username:"admin",password:"adminDeToetertrein",role:"admin",school:"gbsDeToetertrein"},
-    {username:"admin",password:"adminDeVlinderboom",role:"admin",school:"gbsDeVlinderboom"},
-    {username:"admin",password:"adminDeBlijeSchool",role:"admin",school:"gbsDeBlijeSchool"},
-    {username:"admin",password:"adminDeKouter",role:"admin",school:"kouter"},
-    {username:"admin",password:"adminDeVijfWegen",role:"admin",school:"gbsDeVijfWegen"}
-];
-localStorage.setItem("users", JSON.stringify(users));
+            if (!school || !username || !password) {
+                melding.textContent = "Vul alle velden in!";
+                return;
+            }
 
-// ===== LOGIN FUNCTIE =====
-function login() {
-    const school = document.getElementById("school").value;
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const melding = document.getElementById("melding");
+            const user = users.find(u => u.username === username && u.password === password && u.school === school);
+            if (!user) {
+                melding.textContent = "Onjuiste login of verkeerde school!";
+                return;
+            }
 
-    if(!school || !username || !password){
-        melding.textContent = "Vul alle velden in!";
-        return;
-    }
+            // Sla in localStorage
+            localStorage.setItem("school", school);
+            localStorage.setItem("role", user.role);
+            localStorage.setItem("username", username);
 
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    const user = storedUsers.find(u =>
-        u.username === username &&
-        u.password === password &&
-        u.school === school
-    );
-
-    if(!user){
-        melding.textContent = "Onjuiste login of verkeerde school!";
-        return;
-    }
-
-    // Opslaan in localStorage
-    localStorage.setItem("school", user.school);
-    localStorage.setItem("role", user.role);
-    localStorage.setItem("username", user.username);
-
-    // Doorsturen
-    window.location = "index.html";
-}
-</script>
+            window.location = "index.html";
+        }
+    </script>
 </body>
+
 </html>
