@@ -88,6 +88,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
+
 <body>
 
     <script>
@@ -149,7 +150,7 @@
 
         const ingelogdeSchool = localStorage.getItem("school") || '';
 
-        // Klassen vullen (filter op school)
+        // Vult een dropdown met alle klassen van de ingelogde school, zonder dubbele klassen en op alfabetische volgorde
         const klassen = [...new Set(students.filter(s => s.school === ingelogdeSchool).map(s => s.klas))].sort();
         klassen.forEach(k => {
             const opt = document.createElement("option");
@@ -157,7 +158,7 @@
             klasSelect.appendChild(opt);
         });
 
-        // Leerlingen bij klas-selectie (filter op school)
+        // wanneer je een klas kiest de input automatisch als een dropdown gevuld worden 
         klasSelect.addEventListener("change", () => {
             const klas = klasSelect.value;
             leerlingSelect.innerHTML = '<option value="">-- Kies leerling --</option>';
@@ -278,6 +279,7 @@
         }
 
     </script>
+
 
 </body>
 

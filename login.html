@@ -22,6 +22,7 @@
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
             width: 300px;
+            text-align: center;
         }
 
         input,
@@ -57,6 +58,7 @@
     <div class="card">
         <h2>Login</h2>
 
+        <!-- Scholen selecteren login -->
         <label>School</label><br>
         <select id="school">
             <option value="">-- Kies school --</option>
@@ -72,8 +74,9 @@
             <option value="gbsDeVijfWegen">Gbs De Vijf Wegen</option>
         </select>
 
+        <!-- Gebruikersnaam en wachtwoord invoeren login -->
         <label>Gebruikersnaam</label>
-        <input type="text" id="username" placeholder="Bijv. admin">
+        <input type="text" id="username" placeholder="Bijv. admin, tessa, ...">
         <label>Wachtwoord</label>
         <input type="password" id="password" placeholder="Wachtwoord">
         <button onclick="login()">Inloggen</button>
@@ -81,7 +84,8 @@
     </div>
 
     <script>
-        // Maak voorbeeldusers alleen als users nog niet bestaan
+
+        // zorgt ervoor dat elke school een standaard admin login heeft
         if (!localStorage.getItem("users")) {
             const voorbeeldUsers = [
                 { username: "admin", password: "adminDeStartB", role: "admin", school: "gbsDeStartB" },
@@ -98,20 +102,24 @@
             localStorage.setItem("users", JSON.stringify(voorbeeldUsers));
         }
 
+        // haalt opgeslagen lijst uit local storage
         let users = JSON.parse(localStorage.getItem("users"));
 
         // Login functie
         function login() {
             const school = document.getElementById("school").value;
-            const username = document.getElementById("username").value.trim();
+            const username = document.getElementById("username").value.trim(); //trim() haalt onnodige spaties weg
             const password = document.getElementById("password").value.trim();
             const melding = document.getElementById("melding");
 
+            // controleert op lege velden
+            // wanneer leeg -> popup met vul alle velden in!
             if (!school || !username || !password) {
                 melding.textContent = "Vul alle velden in!";
                 return;
             }
 
+            // controleert of de ingevulde gegevens wel kloppen anders -> onjuiste login of verkeerde school
             const user = users.find(u => u.username === username && u.password === password && u.school === school);
             if (!user) {
                 melding.textContent = "Onjuiste login of verkeerde school!";
@@ -126,6 +134,7 @@
             window.location = "index.html";
         }
     </script>
+
 </body>
 
 </html>

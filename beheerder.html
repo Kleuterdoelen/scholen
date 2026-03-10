@@ -68,6 +68,7 @@
     </style>
 </head>
 
+
 <body>
 
     <div class="container">
@@ -113,43 +114,46 @@
         const role = localStorage.getItem("role");
         const loggedInSchool = localStorage.getItem("school");
 
+        // controleert of gebruiker juiste rol heeft
         if (!role || role !== "admin") {
             alert("Geen toegang");
             window.location = "index.html";
         }
 
+        // haalt de gebruikers op
         let users = JSON.parse(localStorage.getItem("users")) || [];
 
         function renderUsers() {
 
+            // haalt de gebruikers op
             users = JSON.parse(localStorage.getItem("users")) || [];
 
+            // maakt een tabel leeg voordat je er nieuwe rijen in zet
             const tbody = document.querySelector("#usersTable tbody");
             tbody.innerHTML = "";
 
+            // maakt een nieuwe lijst van gebruikers die aan een bepaalde school behoren
             const schoolUsers = users
                 .map((u, i) => ({ ...u, index: i }))
                 .filter(u => u.school === loggedInSchool);
 
+
+            // maakt een tabel met gebruikersgegevens en voegt knoppen toe om die gebruikers te bewerken, verwijdere, ...
             schoolUsers.forEach(u => {
 
                 const tr = document.createElement("tr");
 
-                tr.innerHTML = `
+                tr.innerHTML = `<td>${u.username}</td>
+                                <td>${u.role}</td>
+                                <td>${u.school}</td>
 
-<td>${u.username}</td>
-<td>${u.role}</td>
-<td>${u.school}</td>
+                                <td>
 
-<td>
+                                <button class="editBtn" onclick="editUser(${u.index})">Aanpassen</button>
+                                <button class="delBtn" onclick="deleteUser(${u.index})">Verwijderen</button>
+                                <button class="eyeBtn" onclick="showPassword(${u.index})">👁️</button>
 
-<button class="editBtn" onclick="editUser(${u.index})">Aanpassen</button>
-<button class="delBtn" onclick="deleteUser(${u.index})">Verwijderen</button>
-<button class="eyeBtn" onclick="showPassword(${u.index})">👁️</button>
-
-</td>
-
-`;
+                                </td>`;
 
                 tbody.appendChild(tr);
 
@@ -159,22 +163,26 @@
 
         function addUser() {
 
-            const username = document.getElementById("newUsername").value.trim();
+            const username = document.getElementById("newUsername").value.trim(); // //trim() haalt onnodige spaties weg
             const password = document.getElementById("newPassword").value.trim();
             const role = document.getElementById("newRole").value;
 
+            // als username, password en rol niet ingevuld zijn melding met vul alle velden in
             if (!username || !password || !role) {
                 alert("Vul alle velden in!");
                 return;
             }
 
+            // haalt de gebruikers op
             users = JSON.parse(localStorage.getItem("users")) || [];
 
+            // wanneer gebruiker aanmaakt maar gebruiker al bestaat
             if (users.some(u => u.username === username && u.school === loggedInSchool)) {
                 alert("Deze gebruiker bestaat al voor deze school!");
                 return;
             }
 
+            // voegt nieuwe gebruiker toe aan de bestaande lijst van gebruikers
             users.push({
                 username: username,
                 password: password,
@@ -182,8 +190,10 @@
                 school: loggedInSchool
             });
 
+            // zorgt ervoor als je de pagina herlaadt dat de gebruikers blijven bestaan
             localStorage.setItem("users", JSON.stringify(users));
 
+            // zorgt ervoor dat de invoervelden terug leeg zijn
             document.getElementById("newUsername").value = "";
             document.getElementById("newPassword").value = "";
             document.getElementById("newRole").value = "";
@@ -196,8 +206,10 @@
 
             const user = users[index];
 
+            //als je op de knop verwijderen duwt een extra beveiliging of je het wel echt wilt
             if (confirm(`Weet je zeker dat je ${user.username} wilt verwijderen?`)) {
 
+                // verwijdert de gebruiker uit de lijst en werkt de opslag van de browser bij
                 users.splice(index, 1);
                 localStorage.setItem("users", JSON.stringify(users));
 
@@ -207,21 +219,27 @@
 
         }
 
+        // knop aanpassen
         function editUser(index) {
 
+            //  popup waarin je de naam kunt wijzigen
             const newUsername = prompt("Nieuwe gebruikersnaam:", users[index].username);
             if (!newUsername) return;
 
+            // popup waarin je het wachtwoord kunt wijzigen
             const newPassword = prompt("Nieuw wachtwoord:", users[index].password);
             if (!newPassword) return;
 
+            // popup waarin je de niewe rol kunt zetten
             const newRole = prompt("Nieuwe rol (admin/leerkracht):", users[index].role);
 
+            // controleert of de rol goed is voor hij wordt aangepast
             if (newRole !== "admin" && newRole !== "leerkracht") {
                 alert("Rol ongeldig!");
                 return;
             }
 
+            // past bestaande gebruiker aan 
             users[index] = {
 
                 username: newUsername,
@@ -231,16 +249,19 @@
 
             };
 
+            // slaat gebruikerslijst op in de browser
             localStorage.setItem("users", JSON.stringify(users));
 
             renderUsers();
 
         }
 
+        // toont het passwoord van die gebruiker wanneer op de knop getikt
         function showPassword(index) {
             alert(`Wachtwoord van ${users[index].username}: ${users[index].password}`);
         }
 
+        // logt de persoon uit en brengt terug naar login pagina
         function logout() {
             localStorage.removeItem("role");
             localStorage.removeItem("school");
@@ -251,6 +272,7 @@
         renderUsers();
 
     </script>
+
 
 </body>
 
